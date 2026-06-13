@@ -70,7 +70,7 @@ export default class BotGuardClient {
    * console.log(result);
    * ```
    */
-  public async snapshot(args: SnapshotArgs, timeout = 3000): Promise<string> {
+  public async snapshot(args: SnapshotArgs, timeout = 5000): Promise<string> {
     return await Promise.race([
       new Promise(async (resolve, reject) => {
         const vmFunctions = await this.deferredVmFunctions.promise;
@@ -85,7 +85,7 @@ export default class BotGuardClient {
         ]);
       }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new BGError('TIMEOUT', 'VM operation timed out')), timeout)
+        setTimeout(() => reject(new BGError('TIMEOUT', 'VM operation timed out.')), timeout)
       )
     ]) as Promise<string>;
   }
