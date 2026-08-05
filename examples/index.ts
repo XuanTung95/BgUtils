@@ -1,0 +1,89 @@
+import { BotGuardClient, getChallenge } from 'bgutils-js/botguard';
+import { WebPoSignalOutput } from 'bgutils-js/shared-types';
+import { buildURL, getHeaders, USER_AGENT } from 'bgutils-js/utils';
+import { WebPoMinter } from 'bgutils-js/webpo';
+import { JSDOM } from 'jsdom';
+
+import Innertube, { Platform, Types, UniversalCache } from 'youtubei.js';
+
+Platform.shim.eval = async (data: Types.BuildScriptResult) => new Function(data.output)();
+
+//#region BotGuard Client
+const requestKey = 'O43z0dpjhgX20SCx4KAo';
+
+const dom = new JSDOM('<!DOCTYPE html><html lang="en"><head><title></title></head><body></body></html>', {
+    url: 'https://www.youtube.com/',
+    referrer: 'https://www.youtube.com/',
+    userAgent: USER_AGENT
+});
+
+Object.assign(globalThis, {
+    window: dom.window,
+    document: dom.window.document,
+    location: dom.window.location,
+    origin: dom.window.origin
+});
+
+if (!Reflect.has(globalThis, 'navigator')) {
+    Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator });
+}
+
+const challenge = await getChallenge({ fetchFunction: fetch, requestKey });
+
+const interpreterJavascript = challenge.interpreterJavascript?.privateDoNotAccessOrElseSafeScriptWrappedValue;
+
+if (interpreterJavascript) {
+    new Function(interpreterJavascript)();
+} else throw new Error('Interpreter javascript not available');
+
+const botGuardClient = await BotGuardClient.create({
+    program: challenge.program,
+    globalName: challenge.globalName,
+    globalObject: globalThis
+});
+//#endregion
+
+//#region WebPO Minter
+const webPoSignalOutput: WebPoSignalOutput = [];
+const botguardResponse = await botGuardClient.snapshot({ webPoSignalOutput });
+
+const payload = [requestKey, botguardResponse];
+
+const integrityTokenResponse = await fetch(buildURL('GenerateIT', true), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(payload)
+});
+
+const integrityTokenJson = await integrityTokenResponse.json() as [string, number, number, string];
+
+const [integrityToken, estimatedTtlSecs, mintRefreshThreshold, websafeFallbackToken] = integrityTokenJson;
+
+const integrityTokenData = {
+    integrityToken,
+    estimatedTtlSecs,
+    mintRefreshThreshold,
+    websafeFallbackToken
+};
+
+const webPoMinter = await WebPoMinter.create(integrityTokenData, webPoSignalOutput);
+//#endregion
+
+//#region Usage Example
+const innertube = await Innertube.create({ cache: new UniversalCache(true) });
+
+const videoId = 'kX0k0h_7QV8';
+const contentPoToken = await webPoMinter.mintAsWebsafeString(videoId);
+const videoInfo = await innertube.getBasicInfo(videoId, { client: 'YTMUSIC' });
+
+const format = videoInfo.chooseFormat({
+    quality: 'best',
+    type: 'audio'
+});
+
+const audioStreamingURL = `${await format.decipher(innertube.session.player)}&pot=${encodeURIComponent(contentPoToken)}`;
+
+console.log('Content Binding:', videoId);
+console.log('WebPO Token:', contentPoToken);
+console.log('Streaming URL:', audioStreamingURL);
+//#endregion

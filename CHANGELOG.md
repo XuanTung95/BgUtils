@@ -1,5 +1,37 @@
 # Changelog
 
+## [4.0.3](https://github.com/LuanRT/BgUtils/compare/v4.0.2...v4.0.3) (2026-08-04)
+
+
+### Bug Fixes
+
+* **examples/innertube:** Extract att challenge and `ytcfg` from the page ([#44](https://github.com/LuanRT/BgUtils/issues/44)) ([3fa0402](https://github.com/LuanRT/BgUtils/commit/3fa040236c40311dce7e7dce708e708c98fb7447))
+
+## [4.0.2](https://github.com/LuanRT/BgUtils/compare/v4.0.1...v4.0.2) (2026-07-24)
+
+
+### Bug Fixes
+
+* **tsconfig:** Update target version from es2020 to es2022 ([109e341](https://github.com/LuanRT/BgUtils/commit/109e34155728c6f613e37ad388dd0e15d62965ba))
+
+## [4.0.1](https://github.com/LuanRT/BgUtils/compare/v4.0.0...v4.0.1) (2026-07-24)
+
+
+### Miscellaneous Chores
+
+* release 4.0.1 ([931a559](https://github.com/LuanRT/BgUtils/commit/931a559a09999a944d8b5de70884d0c7954bb6e7))
+
+## [4.0.0](https://github.com/LuanRT/BgUtils/compare/v3.2.0...v4.0.0) (2026-07-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* Clean up and simplify lib ([#33](https://github.com/LuanRT/BgUtils/issues/33))
+
+### Code Refactoring
+
+* Clean up and simplify lib ([#33](https://github.com/LuanRT/BgUtils/issues/33)) ([d559ccc](https://github.com/LuanRT/BgUtils/commit/d559cccee594219e02e09eb040b3daf4173f76c7))
+
 ## [3.2.0](https://github.com/LuanRT/BgUtils/compare/v3.1.3...v3.2.0) (2025-03-02)
 
 
